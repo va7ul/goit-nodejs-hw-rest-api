@@ -1,4 +1,3 @@
-// const { nanoid } = require('nanoid');
 const { nanoid } = require('nanoid');
 const fs = require('node:fs/promises');
 const path = require('node:path');
