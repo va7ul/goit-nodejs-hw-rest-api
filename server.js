@@ -7,10 +7,10 @@ mongoose
   .connect(DB_HOST)
   .then(() => {
     app.listen(PORT, () => {
-      console.log('Server running. Use our API on port: 3000');
+      console.info('Database connection successful');
     });
   })
   .catch((error) => {
-    console.log(error.message);
+    console.error(error);
     process.exit(1);
   });
