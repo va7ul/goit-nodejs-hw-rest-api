@@ -1,26 +1,43 @@
 const { Contact } = require('../models/contact');
-
 const { HttpError, ctrlWrapper } = require('../helpers');
 
 const getAll = async (req, res) => {
-  const allContacts = await Contact.find();
+  const { page = 1, limit = 20, favorite } = req.query;
+  const skip = (page - 1) * limit;
+  const query = {};
+  query.owner = req.user._id;
+
+  if (favorite) {
+    query.favorite = favorite;
+  }
+
+  const allContacts = await Contact.find(query, '-createdAt -updatedAt', {
+    skip,
+    limit,
+  }).populate('owner', 'name email');
+
   res.json(allContacts);
 };
 
 const getById = async (req, res) => {
   const { contactId } = req.params;
-  // const findingContact = await Contact.findOne({ _id: contactId });
   const findingContact = await Contact.findById(contactId);
 
   if (!findingContact) {
     throw HttpError(404, 'Not found');
   }
 
+  // Від запитів на до іншого користувача
+  // if (findingContact.owner.toString() !== req.user.id) {
+  //   throw HttpError(404, 'Not found');
+  // }
+
   res.json(findingContact);
 };
 
 const add = async (req, res) => {
-  const newContact = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const newContact = await Contact.create({ ...req.body, owner });
   res.status(201).json(newContact);
 };
 
@@ -52,7 +69,7 @@ const updateStatusContact = async (req, res) => {
 
 const deleteById = async (req, res) => {
   const { contactId } = req.params;
-  
+
   const deletedContact = await Contact.findByIdAndDelete(contactId);
   console.log(deletedContact);
   if (!deletedContact) {
