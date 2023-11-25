@@ -23,14 +23,10 @@ const getById = async (req, res) => {
   const { contactId } = req.params;
   const findingContact = await Contact.findById(contactId);
 
-  if (!findingContact) {
+  // Від запитів на пошук контактів іншого користувача
+  if (!findingContact || findingContact.owner.toString() !== req.user.id) {
     throw HttpError(404, 'Not found');
   }
-
-  // Від запитів на до іншого користувача
-  // if (findingContact.owner.toString() !== req.user.id) {
-  //   throw HttpError(404, 'Not found');
-  // }
 
   res.json(findingContact);
 };
@@ -47,7 +43,7 @@ const updateById = async (req, res) => {
     new: true,
   });
 
-  if (!updatedContact) {
+  if (!updatedContact || updatedContact.owner.toString() !== req.user.id) {
     throw HttpError(404, 'Not found');
   }
 
@@ -60,7 +56,7 @@ const updateStatusContact = async (req, res) => {
     new: true,
   });
 
-  if (!updatedContact) {
+  if (!updatedContact || updatedContact.owner.toString() !== req.user.id) {
     throw HttpError(404, 'Not found');
   }
 
@@ -71,8 +67,8 @@ const deleteById = async (req, res) => {
   const { contactId } = req.params;
 
   const deletedContact = await Contact.findByIdAndDelete(contactId);
-  console.log(deletedContact);
-  if (!deletedContact) {
+
+  if (!deletedContact || deletedContact.owner.toString() !== req.user.id) {
     throw HttpError(404, 'Not found');
   }
 
