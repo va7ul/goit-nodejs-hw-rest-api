@@ -19,10 +19,15 @@ const updatedSubscriptionSchema = Joi.object({
   subscription: Joi.string().valid(...subscriptionList),
 });
 
+const updateAvatar = Joi.object({
+  avatarURL: Joi.string().required(),
+});
+
 const schemas = {
   registerSchema,
   loginSchema,
   updatedSubscriptionSchema,
+  updateAvatar,
 };
 
 const userSchema = new Schema(
